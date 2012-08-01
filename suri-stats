@@ -1,0 +1,103 @@
+#!/usr/bin/env python
+
+import re
+from IPython import embed
+from pylab import *
+
+class Counter:
+    def __init__(self, name, threadname):
+        self.name = name
+        self.threadname = threadname
+        self.values = {}
+    def add_value(self, time, value):
+        self.values[time] = int(value)
+    def get_value(self, time):
+        try:
+            return self.values[time]
+        except:
+            return None
+    def get_values(self):
+        return self.values
+    def merge(self, cnt):
+        if self.values == {}:
+            self.values = cnt.values
+        else:
+            for time in self.values:
+                val = cnt.get_value(time)
+                if not val == None:
+                    self.values[time] += int(val)
+
+class Stats:
+    def __init__(self, runname):
+        self.name = runname
+        #self.counters = {}
+    def load_file(self, filename):
+        self.counters = {}
+        logtime = ""
+        reg_date = re.compile("uptime: (\d+)d, (\d+)h (\d+)m (\d+)s")
+        
+        for line in open(filename, 'r'):
+            if "----" in line:
+                continue
+            elif "Date:" in line:
+                 time_split = reg_date.search(line)
+                 logtime = 86400 * int(time_split.group(1)) + 3600 * int(time_split.group(2)) + 60 * int(time_split.group(3)) + int(time_split.group(4))
+            elif "Counter" in line:
+                continue
+            else: #try to parse
+                (name, threadname, value) = line.split("|")
+                self.add_value(name.strip(), threadname.strip(), logtime, value.strip())
+
+    def add_value(self, name, threadname, time, value):
+        try:
+            self.counters[name][threadname].add_value(time, value)
+        #TODO exception : no key only
+        except:
+            if not self.counters.has_key(name):
+                self.counters[name] = {}
+            if not self.counters[name].has_key(threadname):
+                self.counters[name][threadname] = Counter(name, threadname)
+            self.counters[name][threadname].add_value(time, value)
+    # TODO add way to get global counter
+    def get_value(self, time, name, threadname):
+        try:
+            return self.counters[name][threadname].get_value(time)
+        except:
+            return None
+    def get_values(self, name, threadname = "all"):
+        if threadname == "all":
+            res = Counter(name, "all")
+            for key in self.counters[name].keys():
+                res.merge(self.counters[name][key]) 
+            return res.get_values()
+        else:
+            return self.counters[name][threadname].get_values()
+    def list_keys(self):
+        return self.counters.keys()
+        #try:
+        #    return self.counters[name][threadname].get_values()
+        #except:
+        #    return None
+    def plot(self, name, threadname="all", merge=True):
+        if threadname == "all" and merge != True:
+            for thname in self.counters[name].keys():
+                res = self.get_values(name, thname)
+                plot(res.keys(), res.values(), '+', label=thname)
+        else:        
+            res = self.get_values(name, threadname)
+            plot(res.keys(), res.values(), '+')
+    
+#Log = Stats("long run")
+
+#result = statslog.get_values("capture.kernel_drops", "AFPacketeth310")
+#result1 = statslog.get_values("capture.kernel_drops", "AFPacketeth314")
+#result1 = statslog.get_values("capture.kernel_packets")
+
+#g = Gnuplot.Gnuplot(debug=1)
+#g.title('Stats') # (optional)
+#g.plot()
+
+embed()
+#for key in sorted(result.keys()):
+#    print "%d %d %d" % (key, result[key], result1[key])
+
