@@ -72,8 +72,10 @@ class Stats:
             return res.get_values()
         else:
             return self.counters[name][threadname].get_values()
-    def list_keys(self):
-        return self.counters.keys()
+    def list_counters(self):
+        return sorted(self.counters.keys())
+    def list_threads(self, counter="decoder.pkts"):
+        return sorted(self.counters[counter].keys())
         #try:
         #    return self.counters[name][threadname].get_values()
         #except:
@@ -87,17 +89,4 @@ class Stats:
             res = self.get_values(name, threadname)
             plot(res.keys(), res.values(), '+')
     
-#Log = Stats("long run")
-
-#result = statslog.get_values("capture.kernel_drops", "AFPacketeth310")
-#result1 = statslog.get_values("capture.kernel_drops", "AFPacketeth314")
-#result1 = statslog.get_values("capture.kernel_packets")
-
-#g = Gnuplot.Gnuplot(debug=1)
-#g.title('Stats') # (optional)
-#g.plot()
-
 embed()
-#for key in sorted(result.keys()):
-#    print "%d %d %d" % (key, result[key], result1[key])
-

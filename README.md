@@ -27,7 +27,7 @@ This can take some time if the file is big.
 
 Now, it is possible to list the retrieve counters ::
 
-  In [3]: ST.list_keys()
+  In [3]: ST.list_counters()
   Out[3]: 
   ['decoder.udp',
    'decoder.avg_pkt_size',
@@ -55,3 +55,18 @@ And you can now graph the value you want, successive call to plot will result in
 You can even save the file in a file ::
 
   In [6]: savefig("correl.png")
+
+In fact, you can use any function of matplotlib.
+
+The plot function
+-----------------
+
+The stats are merged by default. But it is possible display on graph per-thread ::
+
+  In [7]: ST.plot("detect.alert", merge=False)
+
+It is also possible to plot for one single thread ::
+
+  In [5]: ST.plot('tcp.sessions', 'AFPacketeth310')
+
+To start a new graph, you can use the close() function.
