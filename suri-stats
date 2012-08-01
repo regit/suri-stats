@@ -18,14 +18,15 @@ class Counter:
             return None
     def get_values(self):
         return self.values
+    def get_times(self):
+        return sorted(self.values.keys())
     def merge(self, cnt):
-        if self.values == {}:
-            self.values = cnt.values
-        else:
-            for time in self.values:
-                val = cnt.get_value(time)
-                if not val == None:
-                    self.values[time] += int(val)
+        for time in cnt.get_times():
+            if self.values.has_key(time):
+                self.values[time] += int(cnt.get_value(time))
+            else:
+                self.values[time] = int(cnt.get_value(time))
+
 
 class Stats:
     def __init__(self, runname):

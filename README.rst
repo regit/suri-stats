@@ -67,6 +67,10 @@ The stats are merged by default. But it is possible display on graph per-thread 
 
 It is also possible to plot for one single thread ::
 
-  In [5]: ST.plot('tcp.sessions', 'AFPacketeth310')
+  In [8]: ST.plot('tcp.sessions', 'AFPacketeth310')
 
-To start a new graph, you can use the close() function.
+To get the list of threads you can use ::
+
+  In [9]: ST.list_threads('tcp.sessions')
+
+To start a new graph, you can use the clf() function or close the graph window.
