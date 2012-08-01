@@ -3,6 +3,7 @@
 import re
 from IPython import embed
 from pylab import *
+import numpy
 
 class Counter:
     def __init__(self, name, threadname):
@@ -81,14 +82,14 @@ class Stats:
         #    return self.counters[name][threadname].get_values()
         #except:
         #    return None
-    def plot(self, name, threadname="all", merge=True):
+    def plot(self, name, threadname="all", merge=True, scale=1):
         if threadname == "all" and merge != True:
             for thname in self.counters[name].keys():
                 res = self.get_values(name, thname)
-                plot(res.keys(), res.values(), '+', label=thname)
+                plot(res.keys(),  numpy.multiply(scale, res.values()), '+', label=thname)
         else:        
             res = self.get_values(name, threadname)
-            plot(res.keys(), res.values(), '+', label=name)
+            plot(res.keys(), numpy.multiply(scale, res.values()), '+', label=name)
         legend()
     
 embed()
