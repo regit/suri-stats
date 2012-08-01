@@ -87,6 +87,7 @@ class Stats:
                 plot(res.keys(), res.values(), '+', label=thname)
         else:        
             res = self.get_values(name, threadname)
-            plot(res.keys(), res.values(), '+')
+            plot(res.keys(), res.values(), '+', label=name)
+        legend()
     
 embed()
