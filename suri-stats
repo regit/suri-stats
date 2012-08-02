@@ -42,6 +42,19 @@ class Counter:
                 self.values[time] += int(cnt.get_value(time))
             else:
                 self.values[time] = int(cnt.get_value(time))
+    def derivative(self):
+        deriv = Counter(self.name + "/s", self.threadname)
+        prevv = 0
+        i = 0
+        for time in sorted(self.values.keys()):
+            if i == 0:
+                prev = time
+            else:
+                deriv.add_value(time, (self.get_value(time) - self.get_value(prev))/(time - prev))
+            i += 1
+        return deriv
+
+
 
 
 class Stats:
@@ -69,7 +82,7 @@ class Stats:
         try:
             self.counters[name][threadname].add_value(time, value)
         #TODO exception : no key only
-        except:
+        except KeyError:
             if not self.counters.has_key(name):
                 self.counters[name] = {}
             if not self.counters[name].has_key(threadname):
@@ -82,13 +95,16 @@ class Stats:
         except:
             return None
     def get_values(self, name, threadname = "all"):
+        return self.get_counter(name, threadname).get_values()
+    def get_counter(self, name, threadname = "all"):
         if threadname == "all":
             res = Counter(name, "all")
             for key in self.counters[name].keys():
                 res.merge(self.counters[name][key]) 
-            return res.get_values()
+            return res
         else:
-            return self.counters[name][threadname].get_values()
+            return self.counters[name][threadname]
+
     def list_counters(self):
         return sorted(self.counters.keys())
     def list_threads(self, counter="decoder.pkts"):
@@ -97,14 +113,26 @@ class Stats:
         #    return self.counters[name][threadname].get_values()
         #except:
         #    return None
-    def plot(self, name, threadname="all", merge=True, scale=1):
+    def plot(self, name, threadname="all", merge=True, scale=1, speed=False):
         if threadname == "all" and merge != True:
             for thname in self.counters[name].keys():
-                res = self.get_values(name, thname)
-                plot(res.keys(),  numpy.multiply(scale, res.values()), '+', label=thname)
+                res = self.get_counter(name, thname)
+                if speed == True:
+                    res = res.derivative()
+                    label = thname + "/s"
+                else:
+                    label = thname
+                res = res.get_values()
+                plot(res.get_values().keys(),  numpy.multiply(scale, res.values()), '+', label=label)
         else:        
-            res = self.get_values(name, threadname)
-            plot(res.keys(), numpy.multiply(scale, res.values()), '+', label=name)
+            res = self.get_counter(name, threadname)
+            if speed == True:
+                res = res.derivative()
+                label = name + "/s"
+            else:
+                label = name
+            res = res.get_values()
+            plot(res.keys(), numpy.multiply(scale, res.values()), '+', label=label)
         legend()
     
 embed()
