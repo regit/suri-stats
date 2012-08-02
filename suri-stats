@@ -26,7 +26,7 @@ class Counter:
         self.threadname = threadname
         self.values = {}
     def add_value(self, time, value):
-        self.values[time] = int(value)
+        self.values[time] = value
     def get_value(self, time):
         try:
             return self.values[time]
@@ -50,7 +50,7 @@ class Counter:
             if i == 0:
                 prev = time
             else:
-                deriv.add_value(time, (self.get_value(time) - self.get_value(prev))/(time - prev))
+                deriv.add_value(time, (float(self.get_value(time) - self.get_value(prev)))/float(time - prev))
             i += 1
         return deriv
 
@@ -76,7 +76,7 @@ class Stats:
                 continue
             else: #try to parse
                 (name, threadname, value) = line.split("|")
-                self.add_value(name.strip(), threadname.strip(), logtime, value.strip())
+                self.add_value(name.strip(), threadname.strip(), logtime, int(value.strip()))
 
     def add_value(self, name, threadname, time, value):
         try:
