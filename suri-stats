@@ -20,6 +20,31 @@ import argparse
 import os
 import sys
 
+def start_ipython_pylab():
+    # Try running this code both at the command line and from inside IPython (with
+    # %run example-embed.py)
+    from IPython.config.loader import Config
+    try:
+        get_ipython
+    except NameError:
+        nested = 0
+        cfg = Config()
+        prompt_config = cfg.PromptManager
+        prompt_config.in_template = 'In <\\#>: '
+        prompt_config.in2_template = '   .\\D.: '
+        prompt_config.out_template = 'Out<\\#>: '
+    else:
+        print("Running nested copies of IPython.")
+        print("The prompts for the nested copy have been modified")
+        cfg = Config()
+        nested = 1
+
+    from IPython.frontend.terminal.embed import InteractiveShellEmbed
+    ipshell = InteractiveShellEmbed(config=cfg,
+                           banner1 = 'Dropping into IPython',
+                           exit_msg = 'Leaving Interpreter, back to program.')
+    ipshell.enable_pylab()
+    return ipshell
 
 parser = argparse.ArgumentParser(prog='suri-stats', description='Statistic ang graphing tools for Suricata stats.log')
 parser.add_argument('-c', '--counters', default=None, help='Counters to work on')
@@ -84,5 +109,5 @@ elif args.plot:
         sys.stderr.write("Nothing to plot, please specify some counters\n")
         sys.exit(1)
 else:
-    from IPython import embed
-    embed()
+    ipshell = start_ipython_pylab()
+    ipshell('Starting interactive session')
