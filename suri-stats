@@ -1,4 +1,4 @@
-#!/usr/bin/ipython --pylab=qt
+#!/usr/bin/env python
 # Copyright (C) 2012 Eric Leblond <eric@regit.org>
 #
 # You can copy, redistribute or modify this Program under the terms of
@@ -15,7 +15,74 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301, USA.
 
-from IPython import embed
 from suristats import *
+import argparse
+import os
+import sys
 
-embed()
+
+parser = argparse.ArgumentParser(prog='suri-stats', description='Statistic ang graphing tools for Suricata stats.log')
+parser.add_argument('-c', '--counters', default=None, help='Counters to work on')
+parser.add_argument('-s', '--stats', action='store_const', const=True, default=False, help='Output stats on file')
+parser.add_argument('-p', '--plot', action='store_const', const=True, default=False, help='Plot specified counters')
+parser.add_argument('-o', '--output', dest='output_file', default='out.png', help='Output file for graph')
+parser.add_argument('-S', '--speed', action='store_const', const=True, default=False, help='Use computed speed not counter')
+parser.add_argument('-i', '--identifier', default='Run', help='Identifier of the run')
+parser.add_argument('-v', '--verbose', action='store_const', const=True, help='verbose output', default=False)
+parser.add_argument('file', metavar='file', nargs='*', help='stats.log file to parse', default=None)
+
+args = parser.parse_args()
+
+ST = Stats(args.identifier)
+if args.verbose:
+    print "Created ST object for run '%s'" % (args.identifier)
+
+if len(args.file) > 1:
+    sys.stderr.write("Only one file supported for now\n")
+    sys.exit(1)
+elif len(args.file) == 1:
+    [stats_file] = args.file
+    if os.path.isfile(stats_file):
+        if args.verbose:
+            print "Loading stats.log file '%s'" % (stats_file)
+        ST.load_file(stats_file)
+    else:
+        sys.stderr.write("'%s' is not a valid file, leaving\n" % (stats_file))
+        sys.exit(1)
+else:
+    if args.verbose:
+        print "No file loaded, you need to call load_file() on ST"
+
+# Do we have an action asked
+if args.stats:
+    if len(args.file) == 0:
+        sys.stderr.write("You need to specify a file\n")
+        sys.exit(1)
+    if args.counters:
+        counters_list = args.counters.split(",")
+        res_mean = ST.mean(counters_list, speed=args.speed)
+        res_max = ST.max(counters_list, speed=args.speed)
+        res_min = ST.min(counters_list, speed=args.speed)
+        res_std = ST.std(counters_list, speed=args.speed)
+    else:
+        res_mean = ST.mean(speed=args.speed)
+        res_max = ST.max(speed=args.speed)
+        res_min = ST.min(speed=args.speed)
+        res_std = ST.std(speed=args.speed)
+    for key in sorted(res_min):
+        print "%s:%f:%f:%f:%f" % (key, res_min[key], res_mean[key], res_max[key], res_std[key])
+elif args.plot:
+    if len(args.file) == 0:
+        sys.stderr.write("You need to specify a file\n")
+        sys.exit(1)
+    if args.counters:
+        counters_list = args.counters.split(",")
+        for counter in counters_list:
+            ST.plot(counter, speed=args.speed)
+        savefig(args.output_file)
+    else:
+        sys.stderr.write("Nothing to plot, please specify some counters\n")
+        sys.exit(1)
+else:
+    from IPython import embed
+    embed()
