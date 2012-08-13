@@ -94,6 +94,8 @@ if args.stats:
         res_max = ST.max(speed=args.speed)
         res_min = ST.min(speed=args.speed)
         res_std = ST.std(speed=args.speed)
+    if args.verbose:
+        print "Key:Min:Mean:Max:Std"
     for key in sorted(res_min):
         print "%s:%f:%f:%f:%f" % (key, res_min[key], res_mean[key], res_max[key], res_std[key])
 elif args.plot:

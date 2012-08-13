@@ -7,13 +7,27 @@ Introduction
 suri-stats is a small script based on ipython and matplotlib. It enables you to
 load a suricata stats.log file. Once this is done, it is possible to graph things.
 
+Installation
+------------
+
+You can simply run ::
+
+ ./setup.py install
+
 Usage
 -----
+
+For a complete usage message, run ::
+
+ suri-stats -h
+
+Interactive usage
+~~~~~~~~~~~~~~~~~
 
 Let's assume we've gota stats.log in /tmp/. Being in the suri-stats directory, one
 can run ::
 
-  ipython --pylab qt suri-stats
+  suri-stats
 
 You will be given a shell.
 
@@ -22,8 +36,13 @@ First thing to do is to create on Stats object ::
   In [1]: ST=Stats("long run")
   In [2]: ST.load_file("/tmp/stats.log")
 
-
 This can take some time if the file is big.
+
+You can also directly work on a file (here stats.log) by running ::
+
+  suri-stats stats.log
+
+The ST object will be created automatically.
 
 Now, it is possible to list the retrieve counters ::
 
@@ -57,6 +76,25 @@ You can even save the file in a file ::
   In [6]: savefig("correl.png")
 
 In fact, you can use any function of matplotlib.
+
+
+Command line operation
+~~~~~~~~~~~~~~~~~~~~~~
+
+It is possible to output stats on a file ::
+
+  suri-stats -s -c decoder.pkts,decoder.ipv4,decoder.ipv6 -S  stats.log -v
+  Created ST object for run 'Run'
+  Loading stats.log file 'stats-short.log'
+  Key:Min:Mean:Max:Std
+  decoder.ipv4:1261291.582492:1313827.987111:1427241.263158:23698.509236
+  decoder.ipv6:2357.928211:2685.328384:4111.746809:210.005908
+  decoder.pkts:1257964.710665:1311786.272049:1423458.157895:24212.591057
+
+It is also possible to directly plot the result ::
+
+  suri-stats -p -c decoder.pkts,decoder.ipv4,decoder.ipv6 -S -o /tmp/out.png stats.log
+
 
 The plot function
 -----------------
