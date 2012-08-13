@@ -19,6 +19,7 @@ from suristats import *
 import argparse
 import os
 import sys
+import sqlite3
 
 def start_ipython_pylab():
     # Try running this code both at the command line and from inside IPython (with
@@ -46,6 +47,33 @@ def start_ipython_pylab():
     ipshell.enable_pylab()
     return ipshell
 
+def init_sqlite(db_file):
+    if os.path.isfile(db_file):
+        sys.stderr.write("Will not overwrite existing file\n")
+        sys.exit(1)
+    conn = sqlite3.connect(db_file)
+    conn.execute('''CREATE TABLE counters
+             (timestamp float, run_id text, host_id text, version text, counter text, min real, mean real, max real, std real)''')
+    conn.commit()
+    conn.close()
+
+def store_run_sqlite(ST, counters_list, db_file, timestamp, run_id, host_id, version):
+    if not os.path.isfile(db_file):
+        sys.stderr.write("'%s' is not a file\n" % (db_file))
+        sys.exit(1)
+    res_mean = ST.mean(counters_list, speed=args.speed)
+    res_max = ST.max(counters_list, speed=args.speed)
+    res_min = ST.min(counters_list, speed=args.speed)
+    res_std = ST.std(counters_list, speed=args.speed)
+    vcounters = []
+    for key in res_mean.keys():
+        vcounters.append((timestamp, run_id, host_id, version, key,
+            res_min[key], res_mean[key], res_max[key], res_std[key]))
+    conn = sqlite3.connect(db_file)
+    conn.executemany("INSERT INTO counters VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", vcounters)
+    conn.commit()
+    conn.close()
+
 parser = argparse.ArgumentParser(prog='suri-stats', description='Statistic ang graphing tools for Suricata stats.log')
 parser.add_argument('-c', '--counters', default=None, help='Counters to work on')
 parser.add_argument('-s', '--stats', action='store_const', const=True, default=False, help='Output stats on file')
@@ -53,10 +81,18 @@ parser.add_argument('-p', '--plot', action='store_const', const=True, default=Fa
 parser.add_argument('-o', '--output', dest='output_file', default='out.png', help='Output file for graph')
 parser.add_argument('-S', '--speed', action='store_const', const=True, default=False, help='Use computed speed not counter')
 parser.add_argument('-i', '--identifier', default='Run', help='Identifier of the run')
+parser.add_argument('-H', '--host', default='localhost', help='Identifier of host')
+parser.add_argument('-V', '--version', default='HEAD', help='Identifier of version')
+parser.add_argument('-I', '--initdb', default=None, help='Create the DB file specified as argument')
+parser.add_argument('-U', '--updatedb', default=None, help='Update the DB file specified as argument')
 parser.add_argument('-v', '--verbose', action='store_const', const=True, help='verbose output', default=False)
 parser.add_argument('file', metavar='file', nargs='*', help='stats.log file to parse', default=None)
 
 args = parser.parse_args()
+
+if args.initdb:
+    init_sqlite(args.initdb)
+    sys.exit(0)
 
 ST = Stats(args.identifier)
 if args.verbose:
@@ -110,6 +146,16 @@ elif args.plot:
     else:
         sys.stderr.write("Nothing to plot, please specify some counters\n")
         sys.exit(1)
+elif args.updatedb:
+    from time import time
+    if len(args.file) == 0:
+        sys.stderr.write("You need to specify a file\n")
+        sys.exit(1)
+    if args.counters:
+        counters_list = args.counters.split(",")
+    else:
+        counters_list = None
+    store_run_sqlite(ST, counters_list, args.updatedb, time(), args.identifier, args.host, args.version)
 else:
     ipshell = start_ipython_pylab()
     ipshell('Starting interactive session')
