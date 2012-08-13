@@ -130,3 +130,21 @@ class Stats:
             res = res.get_values()
             plot(res.keys(), numpy.multiply(scale, res.values()), '+', label=label)
         legend()
+    def op(self, counters_list=None, speed=False, func=min):
+        if counters_list == None:
+            counters_list = self.list_counters()
+        res = {}
+        for counter in counters_list:
+            data = self.get_counter(counter)
+            if speed:
+                data = data.derivative()
+            res[counter] = func(data.get_values().values())
+        return res
+    def min(self, counters_list=None, speed=False):
+        return self.op(counters_list=counters_list, speed=speed, func=min)
+    def max(self, counters_list=None, speed=False):
+        return self.op(counters_list=counters_list, speed=speed, func=max)
+    def mean(self, counters_list=None, speed=False):
+        return self.op(counters_list=counters_list, speed=speed, func=mean)
+    def std(self, counters_list=None, speed=False):
+        return self.op(counters_list=counters_list, speed=speed, func=std)
