@@ -38,9 +38,9 @@ First thing to do is to create on Stats object ::
 
 This can take some time if the file is big.
 
-You can also directly work on a file (here stats.log) by running ::
+You can also directly work on a file by running ::
 
-  suri-stats stats.log
+  suri-stats /tmp/stats.log
 
 The ST object will be created automatically.
 
