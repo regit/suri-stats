@@ -18,6 +18,8 @@
 import re
 from pylab import *
 import numpy
+import os
+import sqlite3
 
 class Counter:
     def __init__(self, name, threadname):
@@ -148,3 +150,33 @@ class Stats:
         return self.op(counters_list=counters_list, speed=speed, func=mean)
     def std(self, counters_list=None, speed=False):
         return self.op(counters_list=counters_list, speed=speed, func=std)
+
+class DBStats:
+    def __init__(self, db_file):
+        self.db_file = db_file
+        #self.counters = {}
+    def init_db(self):
+        if os.path.isfile(self.db_file):
+            sys.stderr.write("Will not overwrite existing file\n")
+            sys.exit(1)
+        conn = sqlite3.connect(self.db_file)
+        conn.execute('''CREATE TABLE counters
+                 (timestamp float, run_id text, host_id text, version text, counter text, min real, mean real, max real, std real)''')
+        conn.commit()
+        conn.close()
+    def update_db(self, ST, counters_list, timestamp, run_id, host_id, version, speed=False):
+        if not os.path.isfile(self.db_file):
+            sys.stderr.write("'%s' is not a file\n" % (db_file))
+            sys.exit(1)
+        res_mean = ST.mean(counters_list, speed=speed)
+        res_max = ST.max(counters_list, speed=speed)
+        res_min = ST.min(counters_list, speed=speed)
+        res_std = ST.std(counters_list, speed=speed)
+        vcounters = []
+        for key in res_mean.keys():
+            vcounters.append((timestamp, run_id, host_id, version, key,
+                res_min[key], res_mean[key], res_max[key], res_std[key]))
+        conn = sqlite3.connect(self.db_file)
+        conn.executemany("INSERT INTO counters VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", vcounters)
+        conn.commit()
+        conn.close()

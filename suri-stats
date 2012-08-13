@@ -19,7 +19,6 @@ from suristats import *
 import argparse
 import os
 import sys
-import sqlite3
 
 def start_ipython_pylab():
     # Try running this code both at the command line and from inside IPython (with
@@ -47,33 +46,6 @@ def start_ipython_pylab():
     ipshell.enable_pylab()
     return ipshell
 
-def init_sqlite(db_file):
-    if os.path.isfile(db_file):
-        sys.stderr.write("Will not overwrite existing file\n")
-        sys.exit(1)
-    conn = sqlite3.connect(db_file)
-    conn.execute('''CREATE TABLE counters
-             (timestamp float, run_id text, host_id text, version text, counter text, min real, mean real, max real, std real)''')
-    conn.commit()
-    conn.close()
-
-def store_run_sqlite(ST, counters_list, db_file, timestamp, run_id, host_id, version):
-    if not os.path.isfile(db_file):
-        sys.stderr.write("'%s' is not a file\n" % (db_file))
-        sys.exit(1)
-    res_mean = ST.mean(counters_list, speed=args.speed)
-    res_max = ST.max(counters_list, speed=args.speed)
-    res_min = ST.min(counters_list, speed=args.speed)
-    res_std = ST.std(counters_list, speed=args.speed)
-    vcounters = []
-    for key in res_mean.keys():
-        vcounters.append((timestamp, run_id, host_id, version, key,
-            res_min[key], res_mean[key], res_max[key], res_std[key]))
-    conn = sqlite3.connect(db_file)
-    conn.executemany("INSERT INTO counters VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", vcounters)
-    conn.commit()
-    conn.close()
-
 parser = argparse.ArgumentParser(prog='suri-stats', description='Statistic ang graphing tools for Suricata stats.log')
 parser.add_argument('-c', '--counters', default=None, help='Counters to work on')
 parser.add_argument('-s', '--stats', action='store_const', const=True, default=False, help='Output stats on file')
@@ -91,7 +63,8 @@ parser.add_argument('file', metavar='file', nargs='*', help='stats.log file to p
 args = parser.parse_args()
 
 if args.initdb:
-    init_sqlite(args.initdb)
+    DBS = DBStats(args.initdb)
+    DBS.init_db()
     sys.exit(0)
 
 ST = Stats(args.identifier)
@@ -151,11 +124,12 @@ elif args.updatedb:
     if len(args.file) == 0:
         sys.stderr.write("You need to specify a file\n")
         sys.exit(1)
+    DBS = DBStats(args.updatedb)
     if args.counters:
         counters_list = args.counters.split(",")
     else:
         counters_list = None
-    store_run_sqlite(ST, counters_list, args.updatedb, time(), args.identifier, args.host, args.version)
+    DBS.update_db(ST, counters_list, time(), args.identifier, args.host, args.version, speed=args.speed)
 else:
     ipshell = start_ipython_pylab()
     ipshell('Starting interactive session')
