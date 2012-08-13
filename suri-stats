@@ -19,6 +19,7 @@ from suristats import *
 import argparse
 import os
 import sys
+from time import time
 
 def start_ipython_pylab():
     # Try running this code both at the command line and from inside IPython (with
@@ -57,6 +58,7 @@ parser.add_argument('-H', '--host', default='localhost', help='Identifier of hos
 parser.add_argument('-V', '--version', default='HEAD', help='Identifier of version')
 parser.add_argument('-I', '--initdb', default=None, help='Create the DB file specified as argument')
 parser.add_argument('-U', '--updatedb', default=None, help='Update the DB file specified as argument')
+parser.add_argument('-t', '--timestamp', default=time(), help='Timestamp of the run')
 parser.add_argument('-v', '--verbose', action='store_const', const=True, help='verbose output', default=False)
 parser.add_argument('file', metavar='file', nargs='*', help='stats.log file to parse', default=None)
 
@@ -120,7 +122,6 @@ elif args.plot:
         sys.stderr.write("Nothing to plot, please specify some counters\n")
         sys.exit(1)
 elif args.updatedb:
-    from time import time
     if len(args.file) == 0:
         sys.stderr.write("You need to specify a file\n")
         sys.exit(1)
@@ -129,7 +130,7 @@ elif args.updatedb:
         counters_list = args.counters.split(",")
     else:
         counters_list = None
-    DBS.update_db(ST, counters_list, time(), args.identifier, args.host, args.version, speed=args.speed)
+    DBS.update_db(ST, counters_list, args.timestamp, args.identifier, args.host, args.version, speed=args.speed)
 else:
     ipshell = start_ipython_pylab()
     ipshell('Starting interactive session')

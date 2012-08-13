@@ -164,6 +164,10 @@ class DBStats:
                  (timestamp float, run_id text, host_id text, version text, counter text, min real, mean real, max real, std real)''')
         conn.commit()
         conn.close()
+    def open_db(self):
+        self.conn = sqlite3.connect(self.db_file)
+    def close_db(self):
+        self.conn.close()
     def update_db(self, ST, counters_list, timestamp, run_id, host_id, version, speed=False):
         if not os.path.isfile(self.db_file):
             sys.stderr.write("'%s' is not a file\n" % (db_file))
@@ -180,3 +184,29 @@ class DBStats:
         conn.executemany("INSERT INTO counters VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", vcounters)
         conn.commit()
         conn.close()
+    def get_counters(self, value=['timestamp', 'mean'], order_by=['timestamp'], counter=None, run=None, version=None, host=None):
+        self.open_db()
+        params = {}
+        if counter != None:
+            params['counter'] = counter
+        if run != None:
+            params['run_id'] = run
+        if version != None:
+            params['version'] = version
+        if host != None:
+            params['host_id'] = host
+        if len(params) == 0:
+            query_string = 'SELECT %s FROM counters' % (','.join(value))
+        else:
+            query_string = 'SELECT %s FROM counters WHERE ' % (','.join(value))
+        params_value = []
+        for key in params.keys():
+            query_string += '%s=? AND' % (key)
+            params_value.append(params[key])
+        query_string = query_string.strip(' AND')
+        query_string += ' ORDER BY %s' % (','.join(order_by))
+        c = self.conn.cursor()
+        c.execute(query_string, params_value)
+        result = c.fetchall()
+        self.close_db()
+        return result
