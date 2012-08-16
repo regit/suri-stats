@@ -132,6 +132,14 @@ class Stats:
             res = res.get_values()
             plot(res.keys(), numpy.multiply(scale, res.values()), '+', label=label)
         legend()
+    def output_to_file(self, filename, format='csv'):
+        OUT=open(filename,'w')
+        for counter in self.list_counters():
+            for thread in self.list_threads(counter=counter):
+                table=self.get_values(counter, threadname=thread)
+                for key in table.keys():
+                    OUT.write(counter + "," + thread + "," + str(key) + "," + str(table[key])+"\n")
+        OUT.close()
     def op(self, counters_list=None, speed=False, func=min):
         if counters_list == None:
             counters_list = self.list_counters()
