@@ -132,13 +132,37 @@ class Stats:
             res = res.get_values()
             plot(res.keys(), numpy.multiply(scale, res.values()), '+', label=label)
         legend()
-    def output_to_file(self, filename, format='csv'):
+    def output_to_file(self, filename, format='csv', mode='short'):
         OUT=open(filename,'w')
-        for counter in self.list_counters():
-            for thread in self.list_threads(counter=counter):
-                table=self.get_values(counter, threadname=thread)
-                for key in table.keys():
-                    OUT.write(counter + "," + thread + "," + str(key) + "," + str(table[key])+"\n")
+        if mode == 'short':
+            OUT.write("counter,thread,time,value\n")
+            for counter in self.list_counters():
+                for thread in self.list_threads(counter=counter):
+                    table=self.get_values(counter, threadname=thread)
+                    for key in table.keys():
+                        OUT.write(counter + "," + thread + "," + str(key) + "," + str(table[key])+"\n")
+        elif mode == 'time':
+            ordered_counters = sorted(self.list_counters())
+            nb_counters = len(ordered_counters)
+            OUT.write("time,thread," + ",".join(ordered_counters)+"\n")
+            for key in sorted(self.get_values('decoder.pkts')):
+                t_values = {}
+                # get all counter for a thread
+                for counter in self.list_counters():
+                    for thread in self.list_threads(counter=counter):
+                        if not t_values.has_key(thread):
+                            t_values[thread] = {}
+                        t_values[thread][counter] = self.get_values(counter, threadname=thread)[key]
+                for thread in t_values.keys():
+                    OUT.write(str(key) + "," + thread + ",")
+                    i = 0
+                    for counter in ordered_counters:
+                        if t_values[thread].has_key(counter):
+                            OUT.write(str(t_values[thread][counter]))
+                        i += 1
+                        if i < nb_counters:
+                            OUT.write(",")
+                    OUT.write("\n")
         OUT.close()
     def op(self, counters_list=None, speed=False, func=min):
         if counters_list == None:
