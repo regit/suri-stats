@@ -110,6 +110,7 @@ if args.stats:
     for key in sorted(res_min):
         print "%s:%f:%f:%f:%f" % (key, res_min[key], res_mean[key], res_max[key], res_std[key])
 elif args.plot:
+    from pylab import *
     if len(args.file) == 0:
         sys.stderr.write("You need to specify a file\n")
         sys.exit(1)

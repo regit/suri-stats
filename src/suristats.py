@@ -16,7 +16,6 @@
 # 02110-1301, USA.
 
 import re
-from pylab import *
 import numpy
 import os
 import sqlite3
@@ -112,6 +111,7 @@ class Stats:
         #except:
         #    return None
     def plot(self, name, threadname="all", merge=True, scale=1, speed=False):
+        from pylab import *
         if threadname == "all" and merge != True:
             for thname in self.counters[name].keys():
                 res = self.get_counter(name, thname)
