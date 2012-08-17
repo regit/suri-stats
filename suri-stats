@@ -21,7 +21,7 @@ import os
 import sys
 from time import time
 
-def start_ipython_pylab():
+def start_ipython_pylab(gui):
     # Try running this code both at the command line and from inside IPython (with
     # %run example-embed.py)
     from IPython.config.loader import Config
@@ -44,7 +44,10 @@ def start_ipython_pylab():
     ipshell = InteractiveShellEmbed(config=cfg,
                            banner1 = 'Dropping into IPython',
                            exit_msg = 'Leaving Interpreter, back to program.')
-    ipshell.enable_pylab()
+    if gui:
+        ipshell.enable_pylab(gui=gui)
+    else:
+        ipshell.enable_pylab()
     return ipshell
 
 parser = argparse.ArgumentParser(prog='suri-stats', description='Statistic ang graphing tools for Suricata stats.log')
@@ -53,6 +56,7 @@ parser.add_argument('-s', '--stats', action='store_const', const=True, default=F
 parser.add_argument('-p', '--plot', action='store_const', const=True, default=False, help='Plot specified counters')
 parser.add_argument('-o', '--output', dest='output_file', default='out.png', help='Output file for graph')
 parser.add_argument('-S', '--speed', action='store_const', const=True, default=False, help='Use computed speed not counter')
+parser.add_argument('-g', '--gui', default=None, help='Pylab backend to use')
 parser.add_argument('-i', '--identifier', default='Run', help='Identifier of the run')
 parser.add_argument('-H', '--host', default='localhost', help='Identifier of host')
 parser.add_argument('-V', '--version', default='HEAD', help='Identifier of version')
@@ -110,15 +114,13 @@ if args.stats:
     for key in sorted(res_min):
         print "%s:%f:%f:%f:%f" % (key, res_min[key], res_mean[key], res_max[key], res_std[key])
 elif args.plot:
-    from pylab import *
     if len(args.file) == 0:
         sys.stderr.write("You need to specify a file\n")
         sys.exit(1)
     if args.counters:
         counters_list = args.counters.split(",")
         for counter in counters_list:
-            ST.plot(counter, speed=args.speed)
-        savefig(args.output_file)
+            ST.plot(counter, speed=args.speed, filename=args.output_file)
     else:
         sys.stderr.write("Nothing to plot, please specify some counters\n")
         sys.exit(1)
@@ -133,5 +135,5 @@ elif args.updatedb:
         counters_list = None
     DBS.update_db(ST, counters_list, args.timestamp, args.identifier, args.host, args.version, speed=args.speed)
 else:
-    ipshell = start_ipython_pylab()
+    ipshell = start_ipython_pylab(args.gui)
     ipshell('Starting interactive session')

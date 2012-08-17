@@ -110,8 +110,8 @@ class Stats:
         #    return self.counters[name][threadname].get_values()
         #except:
         #    return None
-    def plot(self, name, threadname="all", merge=True, scale=1, speed=False):
-        from pylab import *
+    def plot(self, name, threadname="all", merge=True, scale=1, speed=False, filename=None):
+        from pylab import plot, legend, savefig
         if threadname == "all" and merge != True:
             for thname in self.counters[name].keys():
                 res = self.get_counter(name, thname)
@@ -132,6 +132,8 @@ class Stats:
             res = res.get_values()
             plot(res.keys(), numpy.multiply(scale, res.values()), '+', label=label)
         legend()
+        if filename:
+            savefig(filename)
     def output_to_file(self, filename, format='csv', mode='short'):
         OUT=open(filename,'w')
         if mode == 'short':
