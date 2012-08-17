@@ -11,7 +11,7 @@ setup(name='suri-stats',
       packages=['suristats'],
       package_dir={'suristats':'src'},
       provides=['suristats'],
-      requires=['pylab', 'numpy', 'ipython', 'argparse', 'sqlite3'],
+      requires=['mathplotlib', 'numpy', 'ipython', 'argparse', 'sqlite3'],
       classifiers=[
           'Development Status :: 3 - Alpha',
           'Environment :: Console',
