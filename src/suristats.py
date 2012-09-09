@@ -55,10 +55,19 @@ class Counter:
         return deriv
 
 class Stats:
+    """
+    Class storing the statistics of a complete run
+    """
     def __init__(self, runname):
         self.name = runname
         #self.counters = {}
     def load_file(self, filename):
+        """
+        Load a stats.log file and populate the current object.
+
+        Keywords argument:
+        filename -- a suricata stats.log file
+        """
         self.counters = {}
         logtime = ""
         reg_date = re.compile("uptime: (\d+)d, (\d+)h (\d+)m (\d+)s")
@@ -121,7 +130,7 @@ class Stats:
                 else:
                     label = thname
                 res = res.get_values()
-                plot(res.get_values().keys(),  numpy.multiply(scale, res.values()), '+', label=label)
+                plot(res.keys(),  numpy.multiply(scale, res.values()), '+', label=label)
         else:        
             res = self.get_counter(name, threadname)
             if speed == True:
