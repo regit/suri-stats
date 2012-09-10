@@ -71,13 +71,20 @@ class Stats:
         self.counters = {}
         logtime = ""
         reg_date = re.compile("uptime: (\d+)d, (\d+)h (\d+)m (\d+)s")
+        prevtime = 0
         
         for line in open(filename, 'r'):
             if "----" in line:
                 continue
             elif "Date:" in line:
-                 time_split = reg_date.search(line)
-                 logtime = 86400 * int(time_split.group(1)) + 3600 * int(time_split.group(2)) + 60 * int(time_split.group(3)) + int(time_split.group(4))
+                time_split = reg_date.search(line)
+                logtime = 86400 * int(time_split.group(1)) + 3600 * int(time_split.group(2)) + 60 * int(time_split.group(3)) + int(time_split.group(4))
+                if int(logtime) <= prevtime:
+                    import sys
+                    sys.stderr.write("Two runs in same file, stopping at first")
+                    break
+                else:
+                    prevtime = int(logtime)
             elif "Counter" in line:
                 continue
             else: #try to parse
