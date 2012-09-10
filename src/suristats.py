@@ -55,6 +55,13 @@ class Counter:
         return deriv
 
 class Stats:
+    FAIL_COUNTERS = ['capture.kernel_drops',
+                     'defrag.max_frag_hits',
+                     'flow.emerg_mode_entered',
+                     'tcp.segment_memcap_drop',
+                     'tcp.ssn_memcap_drop',
+                     'tcp.stream_depth_reached',
+                     ]
     """
     Class storing the statistics of a complete run
     """
@@ -126,6 +133,26 @@ class Stats:
         #    return self.counters[name][threadname].get_values()
         #except:
         #    return None
+    def list_failures(self, threadname='all', skip_init=False):
+        failed = {}
+        for counter in self.FAIL_COUNTERS:
+            i = 0
+            res = self.get_counter(counter, threadname=threadname)
+            start_val = 0
+            for k in res.get_times():
+                if i == 0:
+                    i = 1
+                    if skip_init:
+                        start_val = res.get_values()[k]
+                        continue
+                    else:
+                        start_val = 0
+                if res.get_values()[k] > start_val:
+                    failed[counter] = [k, res.get_values()[k]]
+                    break
+        return failed
+
+
     def plot(self, name, threadname="all", merge=True, scale=1, speed=False, filename=None):
         from pylab import plot, legend, savefig
         if threadname == "all" and merge != True:
