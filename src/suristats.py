@@ -135,7 +135,9 @@ class Stats:
         #    return None
     def list_failures(self, threadname='all', skip_init=False):
         failed = {}
-        for counter in self.FAIL_COUNTERS:
+        # Get counters valid for current suricata
+        fail_counters = [val for val in self.list_counters() if val in self.FAIL_COUNTERS]
+        for counter in fail_counters:
             i = 0
             res = self.get_counter(counter, threadname=threadname)
             start_val = 0
