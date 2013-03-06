@@ -112,3 +112,12 @@ To get the list of threads you can use ::
   In [9]: ST.list_threads('tcp.sessions')
 
 To start a new graph, you can use the clf() function or close the graph window.
+
+
+Exporting data to graphite
+--------------------------
+
+suri-stats provide a script named 'suri-graphite' which can be used to sent suricata
+performance counters to a Graphite server. suri-graphite connect to Suricata unix
+socket and dump counters at a regular interval (suricata 1.4.1 or git necessary) and
+it sends this data to the Graphite server specified by -H flag.
