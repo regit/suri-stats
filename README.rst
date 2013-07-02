@@ -127,12 +127,12 @@ To start a new graph, you can use the clf() function or close the graph window.
 
 To graph speed instead of raw data, you can use ::
 
-  In [10]: ST.list_threads('tcp.sessions', speed=True)
+  In [10]: ST.plot('tcp.sessions', speed=True)
 
 To graph normalized data instead of raw data, you can use ::
 
-  In [11]: ST.list_threads('capture.kernel_drops', normalized=True)
-  In [12]: ST.list_threads('decoder.tcp', normalized=True)
+  In [11]: ST.plot('capture.kernel_drops', normalized=True)
+  In [12]: ST.plot('decoder.tcp', normalized=True)
 
 This will allow you to graph data with different scales on the same graph as
 both data are normalized.
