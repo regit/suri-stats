@@ -86,6 +86,8 @@ elif len(args.file) == 1:
         if args.verbose:
             print "Loading stats.log file '%s'" % (stats_file)
         ST.load_file(stats_file)
+        if len(ST.runs) > 1:
+            print "WARNING: '%s' contains %d runs" % (stats_file, len(ST.runs))
     else:
         sys.stderr.write("'%s' is not a valid file, leaving\n" % (stats_file))
         sys.exit(1)
