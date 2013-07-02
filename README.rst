@@ -77,6 +77,19 @@ You can even save the file in a file ::
 
 In fact, you can use any function of matplotlib.
 
+Handling stats file with multiple runs
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+If your statistics file contains the log for multiple suricata runs, you
+will be able to access to the different runs by using the .runs array of
+the Stats object. Each element of the array is one Stats object with the
+first element being the initial Stats object itself.
+
+For example, to display the kernel drop for the two first runs ::
+
+ In <10>: print ST.runs[1].plot('capture.kernel_drops')
+ In <11>: print ST.runs[0].plot('capture.kernel_drops')
+
 
 Command line operation
 ~~~~~~~~~~~~~~~~~~~~~~
