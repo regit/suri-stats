@@ -2,7 +2,7 @@
 from setuptools import setup
 
 setup(name='suri-stats',
-      version='0.3',
+      version='0.4',
       description='Tools to output graphic and stats using Suricata stats.log file',
       author='Eric Leblond',
       author_email='eric@regit.org',
