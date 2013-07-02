@@ -55,6 +55,12 @@ class Counter:
                 deriv.add_value(time, (float(self.get_value(time) - self.get_value(prev)))/float(time - prev))
             i += 1
         return deriv
+    def normalize(self):
+        norm = Counter(self.name + " [%]", self.threadname)
+        maxim = max(self.values.values())
+        for time in sorted(self.values.keys()):
+            norm.add_value(time, float(self.get_value(time))/float(maxim))
+        return norm
 
 class Stats:
     FAIL_COUNTERS = ['capture.kernel_drops',
@@ -175,7 +181,7 @@ class Stats:
         return failed
 
 
-    def plot(self, name, threadname="all", merge=True, scale=1, speed=False, filename=None):
+    def plot(self, name, threadname="all", merge=True, scale=1, speed=False, normalize=False, filename=None):
         from pylab import plot, legend, savefig
         if threadname == "all" and merge != True:
             for thname in self.counters[name].keys():
@@ -183,6 +189,9 @@ class Stats:
                 if speed == True:
                     res = res.derivative()
                     label = thname + "/s"
+                elif normalize == True:
+                    res = res.normalize()
+                    label = name + " [%]"
                 else:
                     label = thname
                 res = res.get_values()
@@ -192,6 +201,9 @@ class Stats:
             if speed == True:
                 res = res.derivative()
                 label = name + "/s"
+            elif normalize == True:
+                res = res.normalize()
+                label = name + " [%]"
             else:
                 label = name
             res = res.get_values()
