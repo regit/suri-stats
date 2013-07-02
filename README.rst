@@ -90,7 +90,6 @@ For example, to display the kernel drop for the two first runs ::
  In <10>: print ST.runs[1].plot('capture.kernel_drops')
  In <11>: print ST.runs[0].plot('capture.kernel_drops')
 
-
 Command line operation
 ~~~~~~~~~~~~~~~~~~~~~~
 
@@ -125,6 +124,18 @@ To get the list of threads you can use ::
   In [9]: ST.list_threads('tcp.sessions')
 
 To start a new graph, you can use the clf() function or close the graph window.
+
+To graph speed instead of raw data, you can use ::
+
+  In [10]: ST.list_threads('tcp.sessions', speed=True)
+
+To graph normalized data instead of raw data, you can use ::
+
+  In [11]: ST.list_threads('capture.kernel_drops', normalized=True)
+  In [12]: ST.list_threads('decoder.tcp', normalized=True)
+
+This will allow you to graph data with different scales on the same graph as
+both data are normalized.
 
 
 Exporting data to graphite
