@@ -258,9 +258,9 @@ class Stats:
     def max(self, counters_list=None, speed=False):
         return self.op(counters_list=counters_list, speed=speed, func=max)
     def mean(self, counters_list=None, speed=False):
-        return self.op(counters_list=counters_list, speed=speed, func=mean)
+        return self.op(counters_list=counters_list, speed=speed, func=numpy.mean)
     def std(self, counters_list=None, speed=False):
-        return self.op(counters_list=counters_list, speed=speed, func=std)
+        return self.op(counters_list=counters_list, speed=speed, func=numpy.std)
 
 class DBStats:
     def __init__(self, db_file):
