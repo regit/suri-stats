@@ -19,7 +19,6 @@ import re
 import numpy
 import os
 import sqlite3
-import suricatasc
 from time import sleep
 
 class Counter:
@@ -109,20 +108,6 @@ class Stats:
                 (name, threadname, value) = line.split("|")
                 ST.add_value(name.strip(), threadname.strip(), logtime, int(value.strip()))
         self.runs.append(ST)
-
-    def from_socket(self, socket, samples=10, duration=2):
-        sc = suricatasc.SuricataSC(socket)
-        sc.connect()
-        i = 0;
-        while i < samples:
-            res = sc.send_command("dump-counters")
-            i = i + 1
-            # add test on success
-            res = res['message']
-            for thread in res:
-                for counter in res[thread]:
-                    self.add_value(counter, thread, i * duration, int(res[thread][counter]))
-            sleep(duration)
 
     def add_value(self, name, threadname, time, value):
         try:
