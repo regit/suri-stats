@@ -18,6 +18,7 @@
 import re
 import numpy
 import os
+import sys
 import sqlite3
 from time import sleep
 
@@ -105,8 +106,12 @@ class Stats:
             elif "Counter" in line:
                 continue
             else: #try to parse
-                (name, threadname, value) = line.split("|")
-                ST.add_value(name.strip(), threadname.strip(), logtime, int(value.strip()))
+                try:
+                    (name, threadname, value) = line.split("|")
+                    ST.add_value(name.strip(), threadname.strip(), logtime, int(value.strip()))
+                except:
+                    sys.stderr.write("Invalid line at l.%d: '%s'\n" % (i, line))
+                    pass
         self.runs.append(ST)
 
     def add_value(self, name, threadname, time, value):
