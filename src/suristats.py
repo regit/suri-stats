@@ -197,7 +197,10 @@ class Stats:
                 label = "%s (%s)" % (name, self.name)
             res = res.get_values()
             plot(res.keys(), numpy.multiply(scale, res.values()), '+', label=label)
-        legend(fontsize=10)
+        try:
+            legend(fontsize=10)
+        except TypeError:
+            legend()
         if filename:
             savefig(filename)
 
