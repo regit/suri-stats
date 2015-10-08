@@ -96,7 +96,7 @@ class Stats:
             elif "Date:" in line:
                 time_split = reg_date.search(line)
                 logtime = 86400 * int(time_split.group(1)) + 3600 * int(time_split.group(2)) + 60 * int(time_split.group(3)) + int(time_split.group(4))
-                if int(logtime) <= prevtime:
+                if int(logtime) < prevtime:
                     self.runs.append(ST)
                     i = i + 1
                     ST = Stats(runname + '-' + str(i))
