@@ -165,7 +165,6 @@ class Stats:
                     break
         return failed
 
-
     def plot(self, name, threadname="all", merge=True, scale=1, speed=False, normalize=False, filename=None):
         from pylab import plot, legend, savefig
         if threadname == "all" and merge != True:
@@ -196,6 +195,7 @@ class Stats:
         legend()
         if filename:
             savefig(filename)
+
     def output_to_file(self, filename, format='csv', mode='short'):
         OUT=open(filename,'w')
         if mode == 'short':
