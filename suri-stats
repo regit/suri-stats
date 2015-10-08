@@ -126,7 +126,8 @@ elif args.plot:
     if args.counters:
         counters_list = args.counters.split(",")
         for counter in counters_list:
-            ST.plot(counter, speed=args.speed, filename=args.output_file)
+            for run in ST.runs:
+                run.plot(counter, speed=args.speed, filename=args.output_file)
     else:
         sys.stderr.write("Nothing to plot, please specify some counters\n")
         sys.exit(1)
