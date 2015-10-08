@@ -107,6 +107,10 @@ It is also possible to directly plot the result ::
 
   suri-stats -p -c decoder.pkts,decoder.ipv4,decoder.ipv6 -S -o /tmp/out.png stats.log
 
+You can also output the result other formats by changing the output extension. For
+example to have a PDF output ::
+
+  suri-stats -p -c decoder.pkts,decoder.ipv4,decoder.ipv6 -S -o /tmp/out.pdf stats.log
 
 The plot function
 -----------------
