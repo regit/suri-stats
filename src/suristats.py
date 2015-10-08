@@ -177,24 +177,24 @@ class Stats:
                 res = self.get_counter(name, thname)
                 if speed == True:
                     res = res.derivative()
-                    label = thname + "/s"
+                    label = "%s/s (%s)" % (thname, self.name)
                 elif normalize == True:
                     res = res.normalize()
-                    label = name + " [%]"
+                    label = "%s [%] (%s)" % (name, self.name)
                 else:
-                    label = thname
+                    label = "%s (%s)" % (thname, self.name)
                 res = res.get_values()
                 plot(res.keys(),  numpy.multiply(scale, res.values()), '+', label=label)
         else:        
             res = self.get_counter(name, threadname)
             if speed == True:
                 res = res.derivative()
-                label = name + "/s"
+                label = "%s/s" % (name, self.name)
             elif normalize == True:
                 res = res.normalize()
-                label = name + " [%]"
+                label = "%s [%] (%s)" % (name, self.name)
             else:
-                label = name
+                label = "%s (%s)" % (name, self.name)
             res = res.get_values()
             plot(res.keys(), numpy.multiply(scale, res.values()), '+', label=label)
         legend()
