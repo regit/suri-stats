@@ -19,7 +19,12 @@ import re
 import numpy
 import os
 import sys
-import sqlite3
+HAVE_SQLITE3 = True
+try:
+    import sqlite3
+except:
+    HAVE_SQLITE3 = False
+    pass
 from time import sleep
 
 class Counter:
@@ -257,6 +262,8 @@ class Stats:
 
 class DBStats:
     def __init__(self, db_file):
+        if not HAVE_SQLITE3:
+            raise Exception('sqlite3 module is not available')
         self.db_file = db_file
         #self.counters = {}
     def init_db(self):
