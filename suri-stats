@@ -56,6 +56,7 @@ parser.add_argument('-s', '--stats', action='store_const', const=True, default=F
 parser.add_argument('-p', '--plot', action='store_const', const=True, default=False, help='Plot specified counters')
 parser.add_argument('-o', '--output', dest='output_file', default='out.png', help='Output file for graph')
 parser.add_argument('-S', '--speed', action='store_const', const=True, default=False, help='Use computed speed not counter')
+parser.add_argument('-e', '--eve', action='store_const', const=True, default=False, help='Loaded file is in JSON EVE format')
 parser.add_argument('-g', '--gui', default=None, help='Pylab backend to use')
 parser.add_argument('-i', '--identifier', default='Run', help='Identifier of the run')
 parser.add_argument('-r', '--run', default=None, type=int,  help='Suricata run to use')
@@ -86,7 +87,10 @@ elif len(args.file) == 1:
     if os.path.isfile(stats_file):
         if args.verbose:
             print "Loading stats.log file '%s'" % (stats_file)
-        ST.load_file(stats_file)
+        if args.eve:
+            ST.load_json_file(stats_file)
+        else:
+            ST.load_file(stats_file)
         if len(ST.runs) > 1:
             print "WARNING: '%s' contains %d runs" % (stats_file, len(ST.runs))
     else:
