@@ -5,7 +5,8 @@ Introduction
 ------------
 
 suri-stats is a small script based on ipython and matplotlib. It enables you to
-load a suricata stats.log file. Once this is done, it is possible to graph things.
+load a suricata stats.log file and/or JSON EVE file. Once this is done, it is
+possible to graph performance indicators.
 
 Installation
 ------------
@@ -24,7 +25,7 @@ For a complete usage message, run ::
 Interactive usage
 ~~~~~~~~~~~~~~~~~
 
-Let's assume we've gota stats.log in /tmp/. Being in the suri-stats directory, one
+Let's assume we've got a stats.log in /tmp/. Being in the suri-stats directory, one
 can run ::
 
   suri-stats
@@ -36,11 +37,20 @@ First thing to do is to create on Stats object ::
   In [1]: ST=Stats("long run")
   In [2]: ST.load_file("/tmp/stats.log")
 
+To load a JSON file ::
+
+  In [1]: ST=Stats("modern run")
+  In [2]: ST.load_json_file("/tmp/stats.json")
+
 This can take some time if the file is big.
 
 You can also directly work on a file by running ::
 
   suri-stats /tmp/stats.log
+
+or for a JSON file ::
+
+  suri-stats -e /tmp/stats.log
 
 The ST object will be created automatically.
 
