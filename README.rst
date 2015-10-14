@@ -122,6 +122,9 @@ example to have a PDF output ::
 
   suri-stats -p -c decoder.pkts,decoder.ipv4,decoder.ipv6 -S -o /tmp/out.pdf stats.log
 
+If your file contains multiple run, you can use `-r` flag to select it (count starting
+at 0).
+
 The plot function
 -----------------
 
