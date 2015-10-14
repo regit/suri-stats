@@ -8,7 +8,7 @@ suri-stats is a small script based on ipython and matplotlib. It enables you to
 load a suricata stats.log file and/or JSON EVE file. Once this is done, it is
 possible to graph performance indicators.
 
-.. image:: https://github.com/regit/suri-stats/doc/correl.png
+.. image:: https://raw.githubusercontent.com/regit/suri-stats/master/doc/correl.png
     :alt: Correlation of performance counters in Suricata
     :align: center
 
