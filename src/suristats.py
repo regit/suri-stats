@@ -26,6 +26,7 @@ except:
     HAVE_SQLITE3 = False
     pass
 from time import sleep
+from copy import copy
 
 class Counter:
     def __init__(self, name, threadname):
@@ -118,6 +119,57 @@ class Stats:
                     sys.stderr.write("Invalid line at l.%d: '%s'\n" % (i, line))
                     pass
         self.runs.append(ST)
+
+    def add_json_event(self, logtime, ST, event, prefix, threadname="total"):
+        if event.has_key('threads'):
+            for attribute, value in event['threads'].iteritems():
+                self.add_json_event(logtime, ST, value, [], threadname = attribute)
+        else:
+            for attribute, value in event.iteritems():
+                if isinstance(value, ( int, long )):
+                    counter = copy(prefix)
+                    counter.append(attribute)
+                    ST.add_value(".".join(counter), threadname, logtime, value)
+                elif isinstance(value, unicode):
+                    continue
+                else:
+                    nprefix = copy(prefix)
+                    nprefix.append(attribute)
+                    self.add_json_event(logtime, ST, value, nprefix, threadname = threadname)
+
+    def load_json_file(self, filename):
+        """
+        Load a eve.json file and populate the current object.
+
+        Keywords argument:
+        filename -- a suricata eve.json file
+        """
+
+        import json
+        runname = self.name
+        prevtime = 0
+        
+        i = 0
+        ST = self
+        for line in open(filename, 'r'):
+            if not '"stats"' in line:
+                continue
+            try:
+                event = json.loads(line)
+            except:
+                sys.stderr.write("Invalid line at l.%d: '%s'\n" % (i, line))
+                continue
+            if event.has_key('event_type') and event['event_type'] == 'stats':
+                logtime = event['stats']['uptime']
+                if logtime < prevtime:
+                    self.runs.append(ST)
+                    i = i + 1
+                    ST = Stats(runname + '-' + str(i))
+                prevtime = logtime
+                prefix = []
+                self.add_json_event(logtime, ST, event['stats'], prefix)
+        self.runs.append(ST)
+
 
     def add_value(self, name, threadname, time, value):
         try:
